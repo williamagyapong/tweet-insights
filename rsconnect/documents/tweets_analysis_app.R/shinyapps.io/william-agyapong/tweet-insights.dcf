@@ -1,0 +1,14 @@
+name: tweet-insights
+title: tweet-insights
+username:
+account: william-agyapong
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5723609
+bundleId: 5620608
+url: https://william-agyapong.shinyapps.io/tweet-insights/
+when: 1645886167.9845
+lastSyncTime: 1645886167.98451
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: server.R|ui.R|www/.DS_Store

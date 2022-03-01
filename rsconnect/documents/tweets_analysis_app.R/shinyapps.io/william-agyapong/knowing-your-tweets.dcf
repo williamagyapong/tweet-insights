@@ -1,0 +1,13 @@
+name: knowing-your-tweets
+title: knowing-your-tweets
+username:
+account: william-agyapong
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5719888
+bundleId: 5611169
+url: https://william-agyapong.shinyapps.io/Knowing-your-tweets/
+when: 1645647157.49451
+lastSyncTime: 1645647157.49452
+asMultiple: FALSE
+asStatic: FALSE
