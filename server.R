@@ -1,33 +1,33 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# File: Server side logic                                                       #
+# Purpose: Server side logic                                                       #
 # author: William Ofosu Agyapong                                                #
 # Last updated: Feb 22, 2022                                                    #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # Define server logic ----
 function(input, output) {
-  
+
   # get the year and data based on selected year
   tweet_year <- reactive(input$year)
-  
+
   this_tweet_words <- reactive({
     if(tweet_year()==0) {
       tweet_words
-      
+
     } else {
       # deriving houly tweets in a day
       tweet_words %>%
         filter(year(date) == tweet_year())
-      
+
       # this_date <- this_tweet_words %>% filter(year(date) == tweet_year())
     }
   })
-  
+
   # displaying hourly tweeting pattern
-  #______________________________________________________________________________________________  
-  
+  #______________________________________________________________________________________________
+
   output$trend_plot <- renderPlotly({
-    
+
     if(tweet_year()==0) {
       # deriving hourly tweets in a day across all years
       hourly_tweet_percent <- obama_tweets_clean %>%
@@ -35,7 +35,7 @@ function(input, output) {
         count(name, hour) %>%
         group_by(name) %>%
         mutate(percent = n / sum(n))
-      
+
       this_date <- obama_tweets_clean$date
     } else {
       # deriving houly tweets in a day for a single year
@@ -45,10 +45,10 @@ function(input, output) {
         count(name, hour) %>%
         group_by(name) %>%
         mutate(percent = n / sum(n))
-      
+
       this_date <- obama_tweets_clean %>% filter(year(date) == tweet_year()) %>% pull(date)
     }
-    
+
     # visualizing hour of day tweets were posted
     ggplotly(ggplot(hourly_tweet_percent, aes(hour, percent)) +
                geom_line(show.legend = FALSE, color="dodgerblue") +
@@ -56,7 +56,7 @@ function(input, output) {
                scale_y_continuous(labels = percent_format()) +
                labs(x = "Hour of day (EST)", y = "% of tweets", color = "",
                     title = "Barack Obama's Tweets Pattern per Hour of Day",
-                    subtitle = paste("From ", format(this_date[length(this_date)],"%b %d, %Y"), " to ", 
+                    subtitle = paste("From ", format(this_date[length(this_date)],"%b %d, %Y"), " to ",
                                      format(this_date[1],"%b %d, %Y")),
                     caption = "\n Source: Data collected from Twitter's REST API via rtweet") +
                theme(plot.title = element_text(hjust = 0.5),
@@ -65,17 +65,17 @@ function(input, output) {
       layout(title = list(text = paste0("Barack Obama's Tweets Pattern per Hour of Day",
                                         '<br>',
                                         '<sup>',
-                                        paste("From ", format(this_date[length(this_date)],"%b %d, %Y"), " to ", 
+                                        paste("From ", format(this_date[length(this_date)],"%b %d, %Y"), " to ",
                                               format(this_date[1],"%b %d, %Y")),
                                         '</sup>'))) %>%
       config(displayModeBar = F) #Removing plotly tool bar
   })
-  
-  
+
+
   # Displaying bar chart of top commonly used words
-  #______________________________________________________________________________________________  
+  #______________________________________________________________________________________________
   output$most_common_plot <- renderPlotly({
-    
+
     # top common words used by Barack Obama
     top_words <- this_tweet_words()  %>%
       group_by(word) %>%
@@ -84,9 +84,9 @@ function(input, output) {
       arrange(desc(frequency)) %>%
       top_n(input$num_words, frequency) %>%
       mutate(word = reorder(word, frequency))
-    
+
     this_date <- this_tweet_words()$date # used in the plot subtitle
-    
+
     ggplotly(ggplot(top_words) +
                geom_bar(
                  aes(x=word, y=frequency), fill = "dodgerblue", alpha = .5,
@@ -109,47 +109,47 @@ function(input, output) {
                                               format(this_date[length(this_date)],"%b %d, %Y")),
                                         '</sup>'))) %>%
       config(displayModeBar = F) #Removing plotly tool bar
-    
+
   })
-  
+
   # displaying word cloud plot
   #______________________________________________________________________________________________
   output$wordcloud_plot<- renderPlot({
-    
+
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Displaying most common used words using wordcloud
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
+
     # this_date <- this_tweet_words()$date # used in the plot subtitle
     # setting seed for reproducibility of same results
     set.seed(22222)
-    
+
     # most common words from Obama
-    
+
     word_cloud <- this_tweet_words() %>%
       anti_join(stop_words, by = "word") %>%
-      count(word) 
+      count(word)
     # display word cloud
     wordcloud(words=word_cloud$word,
-              word_cloud$n, 
+              word_cloud$n,
               max.words = 100,
               random.order=FALSE,
               colors= brewer.pal(8,"Dark2"),
               scale = c(3,0.5))
-    
+
   })
-  
-  
+
+
   #__________________________________________________________________________
   output$sentiment_plot <- renderPlotly({
-    
+
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     #    Sentiment Analysis
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    # using the nrc lexicon to assign appropriate sentiment to words 
+
+    # using the nrc lexicon to assign appropriate sentiment to words
     sentiments <- get_sentiments("nrc")
-    
+
     # count and compare the frequencies of each sentiment appearing in each device
     sentiment_summary <- this_tweet_words() %>%
       left_join(sentiments, by = "word") %>%
@@ -157,11 +157,11 @@ function(input, output) {
       spread(screen_name, n) %>%
       rename(score = BarackObama) %>%
       filter(!is.na(sentiment))
-    
+
     this_date <- this_tweet_words()$date # used in the plot subtitle
-    
+
     # Creating a barplot to visualize sentiment scores
-    ggplotly(ggplot(sentiment_summary) + 
+    ggplotly(ggplot(sentiment_summary) +
                geom_bar(
                  aes(x=sentiment, y=score, fill=sentiment),
                  stat="identity") +
@@ -180,14 +180,14 @@ function(input, output) {
       layout(title = list(text = paste0("Sentiment Scores for Barack Obama's Tweets",
                                         '<br>',
                                         '<sup>',
-                                        paste("From ", format(this_date[1],"%b %d, %Y"), " to ", 
+                                        paste("From ", format(this_date[1],"%b %d, %Y"), " to ",
                                               format(this_date[length(this_date)],"%b %d, %Y")),
                                         '</sup>'))) %>%
-      config(displayModeBar = F) #Removing plotly tool bar 
-    
-    
+      config(displayModeBar = F) #Removing plotly tool bar
+
+
   })
-  
+
 }
 
 

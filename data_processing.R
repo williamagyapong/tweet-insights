@@ -1,8 +1,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# course: STA 504/SPRING 2020                                                  #
-# title: Graduate Project                                                      #
-# author: William Ofosu Agyapong, section A                                    #
-# date last updated: May 14, 2020                                              #
+# Purpose: Data preprocessing                                                       #
+# author: William Ofosu Agyapong                                                #
+# Last updated: Feb 22, 2022                                                    #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 # loading required packages
